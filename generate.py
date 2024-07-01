@@ -1,61 +1,59 @@
-# El cometido del programa será importar un fichero de texto plano (copia y pega del feed de suscripciones de youtube),
-# con algunos canales comenzados en "@". Debemos recopilar el nombre de esos canales junto a sus correspondientes
-# direcciones, y exportarlas en un fichero JSON con el formato newpipe
+# The purpose of the program is to import a plain text file (copy and paste from the YouTube subscriptions feed),
+# with some channels starting with "@". We need to collect the names of these channels along with their corresponding
+# URLs and export them in a JSON file with the Newpipe format.
 
-# Dependencias
+# Dependencies
 
-import json; 
+import json
 
-# Importar archivo
+# Import file
 
-f = open ('subscriptions.txt', 'r');
+f = open('subscriptions.txt', 'r')
 
-subscriptions_content = f.readlines();
+subscriptions_content = f.readlines()
 
-# Formato de exportación
-# Siendo que cada canal debe responder al formato: {service_id:"", url:"", name:""}
+# Export format
+# Each channel should have the format: {service_id:"", url:"", name:""}
 export = {
-    "app_version":"0.19.8", 
-    "app_version_int":953,
-    "subscriptions":[]
+    "app_version": "0.19.8",
+    "app_version_int": 953,
+    "subscriptions": []
 }
 
-# Palabras clave para hacer el scrapping
+# Keywords for scraping
 
-keywords=["© 2024 Google LLC YouTube, a Google company", "Suscrito"];
+keywords = ["© 2024 Google LLC YouTube, a Google company", "Subscribed"]
 
-# Función que se encarga de encontrar keybords en un string
+# Function that finds keywords in a string
 
-def has_keyword (block, keywords):
+def has_keyword(block, keywords):
     for word in keywords:
         if word in block:
-            return True; 
-    return False;
+            return True
+    return False
 
-# Scrapping al fichero e introducción de la información en channels. 
+# Scraping the file and inserting the information into channels.
 
-buffer = 0;
+buffer = 0
 
-for block in subscriptions_content: 
+for block in subscriptions_content:
     if block != "\n":
         if buffer == 2:
-            index_channel = {"service_id":0};
-            index_channel["name"] = (block.replace("\n", ""));
-            buffer = buffer-1;
+            index_channel = {"service_id": 0}
+            index_channel["name"] = block.replace("\n", "")
+            buffer = buffer - 1
         elif buffer == 1:
             if "@" in block:
-                index_channel["url"] = ("https://youtube.com/"+block.split("•")[0]); 
-                export["subscriptions"].append(index_channel);     
-            buffer = buffer-1;
+                index_channel["url"] = "https://youtube.com/" + block.split("•")[0]
+                export["subscriptions"].append(index_channel)
+            buffer = buffer - 1
 
-        if has_keyword (block, keywords):
-            buffer = 2;  
+        if has_keyword(block, keywords):
+            buffer = 2
 
-# Conversión del archivo a JSON y exportación. 
+# Convert the file to JSON and export it.
 
-print (export);
+print(export)
 
-with open ("result.json", "w") as outfile: 
-    json.dump (export, outfile);
-
-
+with open("result.json", "w") as outfile:
+    json.dump(export, outfile)
